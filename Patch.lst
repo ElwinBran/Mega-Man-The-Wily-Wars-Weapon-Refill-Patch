@@ -1,0 +1,18 @@
+LOC    OBJ              LINE   SOURCE
+                        1      ; Replacing the health refill from the patch with a sub routine call to found free space.
+02E648 4EB900064450     2      ; JSR $00064450
+----------
+                        3      ; Firstly the original health restore command is called. As most games the max value is $1C.
+                        4      ; This may seem a bit weird but the $24 is added to the value of A2 ($00FFA3DA at that time).
+                        5      ; Either the $FF are ignore or only the two last bytes are used: effect remains that the $A3FE memory offset is set to $1C
+064450 157C001C0024     6      ; MOVE.b #$1C, $24(A2)
+                        7      ; Call the in-game refill subroutine
+064456 4EB90000D0AE     8      ; JSR $0000D0AE
+                        9      ; Now restore a few registers to what they were before the subroutine call.
+06445C 207C00FFA3EA     10     ; MOVEA.l 0x00FFA3EA, A0
+064462 227C00FFA3DA     11     ; MOVEA.l 0x00FFA3DA, A1
+                        12     ; Instead of 'moving' zero into the register, I used the special clear command to reset the registers.
+064468 4280             13     ; CLR.l D0
+06446A 4281             14     ; CLR.l D1
+                        15     ; End of the refill subroutine.
+06446C 4E75             16     ; RTS
